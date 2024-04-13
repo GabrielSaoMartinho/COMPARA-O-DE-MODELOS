@@ -1,0 +1,235 @@
+install.packages("MASS")
+install.packages("ISLR")
+
+library (MASS)
+library (ISLR)
+
+fix(Boston )
+names(Boston )
+data(Boston)
+
+conj_treino <- Boston[1:406,]
+conj_teste <- Boston[407:nrow(Boston),]
+dim(conj_treino)
+dim(conj_teste)
+
+library(leaps)
+regfit_full <- regsubsets(medv ~ ., data = conj_treino, nvmax = 13)
+summary(regfit_full)
+reg_summary <- summary(regfit_full)
+names(reg_summary )
+reg_summary$adjr2
+
+best_cp <- which.min(reg_summary$cp)
+best_bic <- which.min(reg_summary$bic)
+best_adjr2 <- which.max(reg_summary$adjr2)
+
+
+coef_cp <- coef(regfit_full, id = best_cp)
+coef_bic <- coef(regfit_full, id = best_bic)
+coef_adjr2 <- coef(regfit_full, id = best_adjr2)
+
+
+par(mar = c(4, 4, 2, 2))
+windows(width = 10, height = 8)
+par(mfrow = c(2,2))
+
+plot(reg_summary$adjr2, xlab = "Número de variáveis", ylab = "R² Ajustado", type = "l")
+abline(v = best_adjr2, col = "red", lty = 2)
+text(best_adjr2, reg_summary$adjr2[best_adjr2], labels = c("Melhor"), pos = 4)
+
+plot(reg_summary$cp, xlab = "Número de variáveis", ylab = "Cp", type = "l")
+abline(v = best_cp, col = "red", lty = 2)
+text(best_cp, reg_summary$cp[best_cp], labels = c("Melhor"), pos = 4)
+
+plot(reg_summary$bic, xlab = "Número de variáveis", ylab = "BIC", type = "l")
+abline(v = best_bic, col = "red", lty = 2)
+text(best_bic, reg_summary$bic[best_bic], labels = c("Melhor"), pos = 4)
+
+print("Coeficientes do melhor modelo (menor Cp):")
+print(coef_cp)
+print("Coeficientes do melhor modelo (menor BIC):")
+print(coef_bic)
+print("Coeficientes do melhor modelo (maior R² ajustado):")
+print(coef_adjr2)
+
+#2
+library(leaps)
+
+# Seleção progressiva
+regfit_fwd <- regsubsets(medv ~ ., data = conj_treino, nvmax = 13, method = "forward")
+summary(regfit_fwd)
+
+# Seleção regressiva
+regfit_bwd <- regsubsets(medv ~ ., data = conj_treino, nvmax = 13, method = "backward")
+summary(regfit_bwd)
+
+# Seleção progressiva
+reg_summary_fwd <- summary(regfit_fwd)
+names(reg_summary_fwd)
+
+best_cp_fwd <- which.min(reg_summary_fwd$cp)
+best_bic_fwd <- which.min(reg_summary_fwd$bic)
+best_adjr2_fwd <- which.max(reg_summary_fwd$adjr2)
+
+coef_cp_fwd <- coef(regfit_fwd, id = best_cp_fwd)
+coef_bic_fwd <- coef(regfit_fwd, id = best_bic_fwd)
+coef_adjr2_fwd <- coef(regfit_fwd, id = best_adjr2_fwd)
+
+# Seleção regressiva
+reg_summary_bwd <- summary(regfit_bwd)
+names(reg_summary_bwd)
+
+best_cp_bwd <- which.min(reg_summary_bwd$cp)
+best_bic_bwd <- which.min(reg_summary_bwd$bic)
+best_adjr2_bwd <- which.max(reg_summary_bwd$adjr2)
+
+coef_cp_bwd <- coef(regfit_bwd, id = best_cp_bwd)
+coef_bic_bwd <- coef(regfit_bwd, id = best_bic_bwd)
+coef_adjr2_bwd <- coef(regfit_bwd, id = best_adjr2_bwd)
+
+par(mar = c(4, 4, 2, 2))
+windows(width = 10, height = 8)
+par(mfrow = c(2,2))
+
+plot(reg_summary_fwd$adjr2, xlab = "Número de variáveis", ylab = "R² Ajustado", type = "l")
+abline(v = best_adjr2_fwd, col = "red", lty = 2)
+text(best_adjr2_fwd, reg_summary_fwd$adjr2[best_adjr2_fwd], labels = c("Melhor"), pos = 4)
+
+plot(reg_summary_fwd$cp, xlab = "Número de variáveis", ylab = "Cp", type = "l")
+abline(v = best_cp_fwd, col = "red", lty = 2)
+text(best_cp_fwd, reg_summary_fwd$cp[best_cp_fwd], labels = c("Melhor"), pos = 4)
+
+plot(reg_summary_fwd$bic, xlab = "Número de variáveis", ylab = "BIC", type = "l")
+abline(v = best_bic_fwd, col = "red", lty = 2)
+text(best_bic_fwd, reg_summary_fwd$bic[best_bic_fwd], labels = c("Melhor"), pos = 4)
+
+print("Coeficientes do melhor modelo (Forward - menor Cp):")
+print(coef_cp_fwd)
+print("Coeficientes do melhor modelo (Forward - menor BIC):")
+print(coef_bic_fwd)
+print("Coeficientes do melhor modelo (Forward - maior R² ajustado):")
+print(coef_adjr2_fwd)
+
+par(mar = c(4, 4, 2, 2))
+windows(width = 10, height = 8)
+par(mfrow = c(2,2))
+
+plot(reg_summary_bwd$adjr2, xlab = "Número de variáveis", ylab = "R² Ajustado", type = "l")
+abline(v = best_adjr2_bwd, col = "red", lty = 2)
+text(best_adjr2_bwd, reg_summary_bwd$adjr2[best_adjr2_bwd], labels = c("Melhor"), pos = 4)
+
+plot(reg_summary_bwd$cp, xlab = "Número de variáveis", ylab = "Cp", type = "l")
+abline(v = best_cp_bwd, col = "red", lty = 2)
+text(best_cp_bwd, reg_summary_bwd$cp[best_cp_bwd], labels = c("Melhor"), pos = 4)
+
+plot(reg_summary_bwd$bic, xlab = "Número de variáveis", ylab = "BIC", type = "l")
+abline(v = best_bic_bwd, col = "red", lty = 2)
+text(best_bic_bwd, reg_summary_bwd$bic[best_bic_bwd], labels = c("Melhor"), pos = 4)
+
+print("Coeficientes do melhor modelo (Backward - menor Cp):")
+print(coef_cp_bwd)
+print("Coeficientes do melhor modelo (Backward - menor BIC):")
+print(coef_bic_bwd)
+print("Coeficientes do melhor modelo (Backward - maior R² ajustado):")
+print(coef_adjr2_bwd)
+
+
+#3
+install.packages("leaps")
+library(leaps)
+set.seed(1)
+
+train <- sample(c(TRUE, FALSE), nrow(conj_treino), replace = TRUE)
+test <- !train
+
+regfit_best <- regsubsets(medv ~ ., data = conj_treino[train,], nvmax = 13)
+
+test.mat <- model.matrix(medv ~ ., data = conj_treino[test,])
+
+val.errors <- rep(NA, 13)
+for (i in 1:13) {
+  coefi <- coef(regfit_best, id = i)
+  pred <- test.mat[, names(coefi)] %*% coefi
+  val.errors[i] <- mean((conj_treino$medv[test] - pred)^2)
+}
+
+val.errors
+which.min(val.errors)
+coef(regfit_best, 10)
+
+predict.regsubsets <- function(object, newdata, id, ...) {
+  form <- as.formula(object$call[[2]])
+  mat <- model.matrix(form, newdata)
+  coefi <- coef(object, id = id)
+  xvars <- names(coefi)
+  return(mat[, xvars] %*% coefi)
+}
+regfit_best <- regsubsets(medv ~ ., data = conj_treino, nvmax = 13)
+coef(regfit_best, 10)
+
+k <- 10
+set.seed(1)
+folds <- sample(1:k, nrow(conj_treino), replace = TRUE)
+cv.errors <- matrix(NA, k, 13, dimnames = list(NULL, paste(1:13)))
+for(j in 1:k) {
+  best.fit <- regsubsets(medv ~ ., data = conj_treino[folds != j, ], nvmax = 13)
+  
+  for(i in 1:13) {
+    pred <- predict(best.fit, newdata = conj_treino[folds == j, ], id = i)
+    cv.errors[j, i] <- mean((conj_treino$medv[folds == j] - pred)^2)
+  }
+}
+mean.cv.errors <- apply(cv.errors, 2, mean)
+mean.cv.errors
+par(mfrow = c(1,1))
+plot(mean.cv.errors, type = 'b')
+
+#4
+pred_test_cp <- predict(regfit_full, newdata = conj_teste, id = best_cp)
+pred_test_bic <- predict(regfit_full, newdata = conj_teste, id = best_bic)
+pred_test_adjr2 <- predict(regfit_full, newdata = conj_teste, id = best_adjr2)
+mse_cp <- mean((conj_teste$medv - pred_test_cp)^2)
+mse_bic <- mean((conj_teste$medv - pred_test_bic)^2)
+mse_adjr2 <- mean((conj_teste$medv - pred_test_adjr2)^2)
+print("MSE do melhor modelo (menor Cp):")
+print(mse_cp)
+print("MSE do melhor modelo (menor BIC):")
+print(mse_bic)
+print("MSE do melhor modelo (maior R² ajustado):")
+print(mse_adjr2)
+
+pred_test_cp <- predict(regfit_fwd, newdata = conj_teste, id = best_cp_fwd)
+pred_test_bic <- predict(regfit_fwd, newdata = conj_teste, id = best_bic_fwd)
+pred_test_adjr2 <- predict(regfit_fwd, newdata = conj_teste, id = best_adjr2_fwd)
+
+mse_cp <- mean((conj_teste$medv - pred_test_cp)^2)
+mse_bic <- mean((conj_teste$medv - pred_test_bic)^2)
+mse_adjr2 <- mean((conj_teste$medv - pred_test_adjr2)^2)
+print("MSE do melhor modelo (menor Cp):")
+print(mse_cp)
+print("MSE do melhor modelo (menor BIC):")
+print(mse_bic)
+print("MSE do melhor modelo (maior R² ajustado):")
+print(mse_adjr2)
+
+pred_test_cp <- predict(regfit_bwd, newdata = conj_teste, id = best_cp_bwd)
+pred_test_bic <- predict(regfit_bwd, newdata = conj_teste, id = best_bic_bwd)
+pred_test_adjr2 <- predict(regfit_bwd, newdata = conj_teste, id = best_adjr2_bwd)
+mse_cp <- mean((conj_teste$medv - pred_test_cp)^2)
+mse_bic <- mean((conj_teste$medv - pred_test_bic)^2)
+mse_adjr2 <- mean((conj_teste$medv - pred_test_adjr2)^2)
+
+print("MSE do melhor modelo (menor Cp):")
+print(mse_cp)
+print("MSE do melhor modelo (menor BIC):")
+print(mse_bic)
+print("MSE do melhor modelo (maior R² ajustado):")
+print(mse_adjr2)
+
+coef(regfit_best, 10)
+pred_best <- predict(regfit_best, newdata = conj_teste, id = 10)
+mse_best <- mean((conj_teste$medv - pred_best)^2)
+
+print("MSE do melhor modelo validação cruzada:")
+print(mse_best)
